@@ -3,8 +3,7 @@
 
 #include <string>
 
-class InputBuffer
-{
+class InputBuffer {
 public:
   std::string buffer;
   std::size_t buffer_length{0};
