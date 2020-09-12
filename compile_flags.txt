@@ -1,0 +1,4 @@
+-I./include
+-xc++
+-Wall
+-std=c++14
