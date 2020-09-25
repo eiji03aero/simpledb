@@ -1,5 +1,8 @@
+#include "simpledb/command.h"
+
 #include <string>
-#include "command.h"
+
+namespace simpledb {
 
 MetaCommandResult do_meta_command(std::string &input) {
   if (input == ".exit") {
@@ -8,3 +11,5 @@ MetaCommandResult do_meta_command(std::string &input) {
     return MetaCommandResult::UnregocnizedCommand;
   }
 }
+
+} /* namespace simpledb */

@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace simpledb {
+
 class InputBuffer {
 public:
   std::string buffer;
@@ -11,5 +13,7 @@ public:
 
   void write(std::string &input);
 };
+
+} /* namespace simpledb */
 
 #endif /* ifndef INPUT_BUFFER_H_INCLUDED */

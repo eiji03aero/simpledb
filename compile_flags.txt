@@ -1,4 +1,6 @@
 -I./include
+-I./build/googletest-src/googletest/include
+-I./build/pipedcp-src/include
 -xc++
 -Wall
 -std=c++14
