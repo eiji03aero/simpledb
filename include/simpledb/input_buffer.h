@@ -7,11 +7,11 @@ namespace simpledb {
 
 class InputBuffer {
 public:
+  void write(std::string &input);
+
   std::string buffer;
   std::size_t buffer_length{0};
   std::size_t input_length{0};
-
-  void write(std::string &input);
 };
 
 } /* namespace simpledb */

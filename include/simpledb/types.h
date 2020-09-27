@@ -1,8 +1,6 @@
 #ifndef TYPE_H_INCLUDED
 #define TYPE_H_INCLUDED
 
-#include <cstdint>
-
 namespace simpledb {
 
 enum class MetaCommandResult {

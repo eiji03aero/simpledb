@@ -3,16 +3,17 @@
 
 #include "simpledb/types.h"
 
+#include <cstdint>
+
 namespace simpledb {
 
 class Page {
 public:
-  static const uint32_t PageSize { 4096 };
-
-  char *content;
-
   Page();
   ~Page();
+
+  static const uint32_t PageSize { 4096 };
+  char *content;
 };
 
 } /* namespace simpledb */

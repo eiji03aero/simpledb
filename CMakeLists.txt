@@ -40,7 +40,6 @@ if (SIMPLEDB_BUILD_TESTS)
     ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
     EXCLUDE_FROM_ALL
   )
-  # -------------------- end gtest --------------------
 
   add_executable(db_test test/simpledb/db_test.cpp)
   target_sources(db_test PUBLIC src/simpledb/row.cpp)

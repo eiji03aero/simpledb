@@ -65,7 +65,10 @@ ExecuteResult Statement::execute_insert(Table *table) {
     return ExecuteResult::TableFull;
   }
 
-  row_to_insert.serialize(table->row_slot(table->num_rows));
+  Cursor cursor(table);
+  cursor.table_end();
+
+  row_to_insert.serialize(table->cursor_value(&cursor));
   table->num_rows += 1;
 
   return ExecuteResult::Success;
@@ -76,10 +79,14 @@ void print_row(Row *row) {
 }
 
 ExecuteResult Statement::execute_select(Table *table) {
+  Cursor cursor(table);
+  cursor.table_start();
+
   Row row;
-  for (uint32_t i = 0; i < table->num_rows; i++) {
-    row.deserialize(table->row_slot(i));
+  while (!(cursor.end_of_table)) {
+    row.deserialize(table->cursor_value(&cursor));
     print_row(&row);
+    cursor.advance();
   }
 
   return ExecuteResult::Success;

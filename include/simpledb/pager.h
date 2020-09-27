@@ -4,6 +4,7 @@
 #include "simpledb/types.h"
 #include "simpledb/page.h"
 
+#include <cstdint>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>

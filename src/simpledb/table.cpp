@@ -47,9 +47,10 @@ void Table::db_close() {
   delete pager;
 }
 
-char* Table::row_slot(uint32_t row_num) {
+char* Table::cursor_value(Cursor *cursor) {
+  uint32_t row_num = cursor->row_num;
   uint32_t page_num = row_num / rows_per_page();
-  Page *page = pager->get_page(page_num);
+  Page *page = cursor->table->pager->get_page(page_num);
   uint32_t row_offset = row_num % rows_per_page();
   uint32_t byte_offset = row_offset * ROW_SIZE;
   return page->content + byte_offset;
@@ -61,6 +62,23 @@ uint32_t Table::rows_per_page() {
 
 uint32_t Table::max_rows() {
   return rows_per_page() * Pager::MaxPages;
+}
+
+void Cursor::table_start() {
+  row_num = 0;
+  end_of_table = (table->num_rows == 0);
+}
+
+void Cursor::table_end() {
+  row_num = table->num_rows;
+  end_of_table = true;
+}
+
+void Cursor::advance() {
+  row_num += 1;
+  if (row_num >= table->num_rows) {
+    end_of_table = true;
+  }
 }
 
 } /* namespace simpledb */

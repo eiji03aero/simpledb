@@ -4,6 +4,7 @@
 #include "simpledb/types.h"
 
 #include <cstring>
+#include <cstdint>
 #include <cstdlib>
 
 #define COLUMN_USERNAME_SIZE 32
@@ -15,12 +16,12 @@ namespace simpledb {
 
 class Row {
 public:
+  void serialize(char *destination);
+  void deserialize(char *destination);
+
   uint32_t id;
   char username[COLUMN_USERNAME_SIZE + 1];
   char email[COLUMN_EMAIL_SIZE + 1];
-
-  void serialize(char *destination);
-  void deserialize(char *destination);
 };
 
 extern const uint32_t ID_SIZE;
