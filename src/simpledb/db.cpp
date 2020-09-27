@@ -7,7 +7,15 @@ void print_prompt() {
 }
 
 int db(int argc, char* argv[]) {
+  if (argc < 2) {
+    std::cout << "Error: must supply a database filename" << '\n';
+    exit(EXIT_FAILURE);
+  }
+
+  char *filename = argv[1];
+
   Table *table { new Table };
+  table->db_open(filename);
   InputBuffer input_buffer;
 
   while (true) {
@@ -19,7 +27,7 @@ int db(int argc, char* argv[]) {
     // input_buffer.write(input);
 
     if (input.find(".") == 0) {
-      switch (do_meta_command(input)) {
+      switch (do_meta_command(input, table)) {
         case (MetaCommandResult::Success):
           continue;
         case (MetaCommandResult::UnregocnizedCommand):
