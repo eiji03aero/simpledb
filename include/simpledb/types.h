@@ -24,7 +24,8 @@ enum class StatementType {
 enum class ExecuteResult {
   TableFull,
   Success,
-  UnknownStatement
+  UnknownStatement,
+  DuplicateKey
 };
 
 enum class NodeType {

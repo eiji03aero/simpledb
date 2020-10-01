@@ -24,6 +24,8 @@ public:
   void db_open(const char *filename);
   void db_close();
   char* cursor_value(Cursor *cursor);
+  Cursor* find(uint32_t key_to_insert);
+  Cursor* find_leaf_node(uint32_t page_num, uint32_t key_to_insert);
 
   uint32_t root_page_num;
   Pager *pager;
@@ -35,7 +37,6 @@ public:
     : table { tbl } {};
 
   void table_start();
-  void table_end();
   void advance();
   void insert_leaf_node(uint32_t key, Row *value);
 

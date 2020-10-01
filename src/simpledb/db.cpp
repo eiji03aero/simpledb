@@ -65,6 +65,9 @@ int db(int argc, char* argv[]) {
       case (ExecuteResult::UnknownStatement):
         std::cout << "Error: unknown statement" << '\n';
         break;
+      case (ExecuteResult::DuplicateKey):
+        std::cout << "Error: duplicate key" << '\n';
+        break;
     }
   }
 

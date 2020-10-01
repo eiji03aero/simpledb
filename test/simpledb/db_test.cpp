@@ -237,9 +237,28 @@ TEST_F(DbTest, PrintsStructureOfOneNodeBTree) {
     "db > executed",
     "db > Tree: ",
     "leaf (size: 3)",
-    "  - 0 : 3",
-    "  - 1 : 1",
-    "  - 2 : 2",
+    "  - 0 : 1",
+    "  - 1 : 2",
+    "  - 2 : 3",
+    "db > ",
+  };
+
+  expect_statements_result(statements, expected);
+}
+
+TEST_F(DbTest, PrintsErrorDuplicateId) {
+  std::vector<std::string> statements {
+    "insert 1 user1 person1@example.com\n",
+    "insert 1 user1 person1@example.com\n",
+    "select\n",
+    ".exit\n",
+  };
+
+  std::vector<std::string> expected {
+    "db > executed",
+    "db > Error: duplicate key",
+    "db > 1 user1 person1@example.comyade",
+    "executed",
     "db > ",
   };
 

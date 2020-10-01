@@ -1,6 +1,9 @@
 #ifndef SIMPLEDB_NODE_H_INCLUDED
 #define SIMPLEDB_NODE_H_INCLUDED
 
+#include "simpledb/page.h"
+#include "simpledb/types.h"
+
 #include <cstdint>
 
 namespace simpledb {
@@ -28,11 +31,13 @@ extern const uint32_t LEAF_NODE_CELL_SIZE;
 extern const uint32_t LEAF_NODE_SPACE_FOR_CELLS;
 extern const uint32_t LEAF_NODE_MAX_CELLS;
 
-class LeafNode {
+class Node {
 public:
-  LeafNode(char *node);
+  Node(char *node);
 
-  void initialize();
+  void initialize_leaf_node();
+  NodeType get_type();
+  void set_type(NodeType type);
   uint32_t* num_cells();
   char* cell(uint32_t cell_num);
   char* key(uint32_t cell_num);

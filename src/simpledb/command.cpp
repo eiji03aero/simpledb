@@ -11,7 +11,7 @@ void print_constants() {
   std::cout << "LEAF_NODE_MAX_CELLS: " << LEAF_NODE_MAX_CELLS << '\n';
 }
 
-void print_leaf_node(LeafNode node) {
+void print_leaf_node(Node node) {
   uint32_t num_cells = *(node.num_cells());
   std::cout << "leaf (size: " << num_cells << ")" << '\n';
   for (uint32_t i = 0; i < num_cells; i++) {
@@ -31,7 +31,7 @@ MetaCommandResult do_meta_command(std::string &input, Table *table) {
   } else if (input == ".btree") {
     std::cout << "Tree: " << '\n';
     Page *page = table->pager->get_page(0);
-    LeafNode node(page->content);
+    Node node(page->content);
     print_leaf_node(node);
     return MetaCommandResult::Success;
   } else {

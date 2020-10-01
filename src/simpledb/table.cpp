@@ -11,8 +11,8 @@ void Table::db_open(const char *filename) {
 
   if (pager->num_pages == 0) {
     Page *root_page = pager->get_page(0);
-    LeafNode root_node(root_page->content);
-    root_node.initialize();
+    Node root_node(root_page->content);
+    root_node.initialize_leaf_node();
   }
 }
 
@@ -44,8 +44,48 @@ void Table::db_close() {
 char* Table::cursor_value(Cursor *cursor) {
   uint32_t page_num = cursor->page_num;
   Page *page = cursor->table->pager->get_page(page_num);
-  LeafNode node(page->content);
+  Node node(page->content);
   return node.value(cursor->cell_num);
+}
+
+Cursor* Table::find(uint32_t key) {
+  Page *page = pager->get_page(root_page_num);
+  Node node(page->content);
+
+  if (node.get_type() == NodeType::Leaf) {
+    return find_leaf_node(root_page_num, key);
+  } else {
+    std::cout << "Error: need to implement searching internal node" << '\n';
+    exit(EXIT_FAILURE);
+  }
+}
+
+Cursor* Table::find_leaf_node(uint32_t page_num, uint32_t key) {
+  Page *page = pager->get_page(page_num);
+  Node node(page->content);
+  uint32_t num_cells = *(node.num_cells());
+
+  Cursor *cursor = new Cursor(this);
+  cursor->page_num = page_num;
+
+  uint32_t min_index = 0;
+  uint32_t one_past_max_index = num_cells;
+  while (one_past_max_index != min_index) {
+    uint32_t index = (min_index + one_past_max_index) / 2;
+    uint32_t key_at_index = *(node.key(index));
+    if (key == key_at_index) {
+      cursor->cell_num = index;
+      return cursor;
+    }
+    if (key < key_at_index) {
+      one_past_max_index = index;
+    } else {
+      min_index = index + 1;
+    }
+  }
+
+  cursor->cell_num = min_index;
+  return cursor;
 }
 
 void Cursor::table_start() {
@@ -53,24 +93,14 @@ void Cursor::table_start() {
   cell_num = 0;
 
   Page *root_page = table->pager->get_page(table->root_page_num);
-  LeafNode root_node(root_page->content);
+  Node root_node(root_page->content);
   uint32_t num_cells = *(root_node.num_cells());
   end_of_table = (num_cells == 0);
 }
 
-void Cursor::table_end() {
-  page_num = table->root_page_num;
-  Page *root_page = table->pager->get_page(table->root_page_num);
-  LeafNode root_node(root_page->content);
-  uint32_t num_cells = *(root_node.num_cells());
-  cell_num = num_cells;
-
-  end_of_table = true;
-}
-
 void Cursor::advance() {
   Page *page = table->pager->get_page(page_num);
-  LeafNode node(page->content);
+  Node node(page->content);
 
   cell_num += 1;
   if (cell_num >= *(node.num_cells())) {
@@ -80,7 +110,7 @@ void Cursor::advance() {
 
 void Cursor::insert_leaf_node(uint32_t key, Row *row) {
   Page *page = table->pager->get_page(page_num);
-  LeafNode node(page->content);
+  Node node(page->content);
 
   uint32_t num_cells = *(node.num_cells());
   if (num_cells >= LEAF_NODE_MAX_CELLS) {

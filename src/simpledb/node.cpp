@@ -27,26 +27,37 @@ extern const uint32_t LEAF_NODE_CELL_SIZE { LEAF_NODE_KEY_SIZE + LEAF_NODE_VALUE
 extern const uint32_t LEAF_NODE_SPACE_FOR_CELLS { Page::PageSize - LEAF_NODE_HEADER_SIZE };
 extern const uint32_t LEAF_NODE_MAX_CELLS { LEAF_NODE_SPACE_FOR_CELLS / LEAF_NODE_CELL_SIZE };
 
-LeafNode::LeafNode(char *node)
+Node::Node(char *node)
   : node { node } {};
 
-void LeafNode::initialize() {
+void Node::initialize_leaf_node() {
+  set_type(NodeType::Leaf);
   *(num_cells()) = 0;
 }
 
-uint32_t* LeafNode::num_cells() {
+NodeType Node::get_type() {
+  uint8_t value = *(reinterpret_cast<uint8_t*>(node + NODE_TYPE_OFFSET));
+  return static_cast<NodeType>(value);
+}
+
+void Node::set_type(NodeType type) {
+  uint8_t value = static_cast<uint8_t>(type);
+  *(reinterpret_cast<uint8_t*>(node + NODE_TYPE_OFFSET)) = value;
+}
+
+uint32_t* Node::num_cells() {
   return reinterpret_cast<uint32_t*>(node + LEAF_NODE_NUM_CELLS_OFFSET);
 }
 
-char* LeafNode::cell(uint32_t cell_num) {
+char* Node::cell(uint32_t cell_num) {
   return node + LEAF_NODE_HEADER_SIZE + cell_num * LEAF_NODE_CELL_SIZE;
 }
 
-char* LeafNode::key(uint32_t cell_num) {
+char* Node::key(uint32_t cell_num) {
   return cell(cell_num);
 }
 
-char* LeafNode::value(uint32_t cell_num) {
+char* Node::value(uint32_t cell_num) {
   return cell(cell_num) + LEAF_NODE_KEY_SIZE;
 }
 
