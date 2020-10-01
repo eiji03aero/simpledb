@@ -24,8 +24,8 @@ test-unit:
 .PHONY: dev
 dev:
 	@cd build \
-		&& $(MAKE) $(MAIN_NAME)\
-		&& ./$(MAIN_NAME)
+		&& $(MAKE) $(MAIN_NAME) \
+		&& ./$(MAIN_NAME) mydb.db
 
 .PHONY: watch
 watch:

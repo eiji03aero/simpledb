@@ -3,7 +3,7 @@
 namespace simpledb {
 
 void print_prompt() {
-  printf("db > ");
+  std::cout << "db > ";
 }
 
 int db(int argc, char* argv[]) {

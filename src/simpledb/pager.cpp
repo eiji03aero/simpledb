@@ -11,6 +11,12 @@ void Pager::open(const char *filename) {
   }
 
   file_length = lseek(file_descriptor, 0, SEEK_END);
+  num_pages = file_length / Page::PageSize;
+
+  if (file_length % Page::PageSize != 0) {
+    std::cout << "Error: db file is not a whole number of pages. Corrupt file." << '\n';
+    exit(EXIT_FAILURE);
+  }
 
   for (int i {0}; i < MaxPages; i++) {
     pages[i] = NULL;
@@ -26,13 +32,13 @@ Page* Pager::get_page(uint32_t page_num) {
 
   if (pages[page_num] == NULL) {
     Page *page { new Page };
-    uint32_t num_pages { file_length / Page::PageSize };
+    uint32_t l_num_pages { file_length / Page::PageSize };
 
     if (file_length % Page::PageSize) {
-      num_pages += 1;
+      l_num_pages += 1;
     }
 
-    if (page_num <= num_pages) {
+    if (page_num <= l_num_pages) {
       lseek(file_descriptor, page_num * Page::PageSize, SEEK_SET);
       ssize_t bytes_read { read(file_descriptor, page->content, Page::PageSize) };
       if (bytes_read == -1) {
@@ -43,6 +49,10 @@ Page* Pager::get_page(uint32_t page_num) {
     }
 
     pages[page_num] = page;
+
+    if (page_num >= this->num_pages) {
+      this->num_pages = page_num + 1;
+    }
   }
 
   return pages[page_num];
@@ -53,7 +63,7 @@ void Pager::delete_page(uint32_t page_num) {
   pages[page_num] = NULL;
 }
 
-void Pager::flush(uint32_t page_num, uint32_t size) {
+void Pager::flush(uint32_t page_num) {
   if (pages[page_num] == NULL) {
     std::cout << "Error tried to flush null page" << '\n';
     exit(EXIT_FAILURE);
@@ -65,7 +75,7 @@ void Pager::flush(uint32_t page_num, uint32_t size) {
     exit(EXIT_FAILURE);
   }
 
-  ssize_t bytes_written { write(file_descriptor, pages[page_num]->content, size) };
+  ssize_t bytes_written { write(file_descriptor, pages[page_num]->content, Page::PageSize) };
   if (bytes_written == -1) {
     std::cout << "Error: writing " << errno << '\n';
     exit(EXIT_FAILURE);

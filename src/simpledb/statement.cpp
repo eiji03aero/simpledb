@@ -61,15 +61,15 @@ ExecuteResult Statement::execute(Table *table) {
 }
 
 ExecuteResult Statement::execute_insert(Table *table) {
-  if (table->num_rows >= table->max_rows()) {
+  Page *page = table->pager->get_page(table->root_page_num);
+  LeafNode node(page->content);
+  if (*(node.num_cells()) >= LEAF_NODE_MAX_CELLS) {
     return ExecuteResult::TableFull;
   }
 
   Cursor cursor(table);
   cursor.table_end();
-
-  row_to_insert.serialize(table->cursor_value(&cursor));
-  table->num_rows += 1;
+  cursor.insert_leaf_node(row_to_insert.id, &row_to_insert);
 
   return ExecuteResult::Success;
 }

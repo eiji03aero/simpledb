@@ -5,6 +5,7 @@
 #include "simpledb/row.h"
 #include "simpledb/page.h"
 #include "simpledb/pager.h"
+#include "simpledb/node.h"
 
 #include <cstdint>
 #include <cstring>
@@ -23,10 +24,8 @@ public:
   void db_open(const char *filename);
   void db_close();
   char* cursor_value(Cursor *cursor);
-  uint32_t rows_per_page();
-  uint32_t max_rows();
 
-  uint32_t num_rows;
+  uint32_t root_page_num;
   Pager *pager;
 };
 
@@ -38,9 +37,11 @@ public:
   void table_start();
   void table_end();
   void advance();
+  void insert_leaf_node(uint32_t key, Row *value);
 
   Table *table;
-  uint32_t row_num;
+  uint32_t page_num;
+  uint32_t cell_num;
   bool end_of_table;
 };
 

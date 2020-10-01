@@ -202,4 +202,48 @@ TEST_F(DbTest, KeepsDataAfterClosingConnection) {
   expect_statements_result(statements2, expected2);
 }
 
+TEST_F(DbTest, PrintsConstants) {
+  std::vector<std::string> statements {
+    ".constants\n",
+    ".exit\n",
+  };
+
+  std::vector<std::string> expected {
+    "db > Constants: ",
+    "ROW_SIZE: 293",
+    "COMMON_NODE_HEADER_SIZE: 6",
+    "LEAF_NODE_HEADER_SIZE: 10",
+    "LEAF_NODE_CELL_SIZE: 297",
+    "LEAF_NODE_SPACE_FOR_CELLS: 4086",
+    "LEAF_NODE_MAX_CELLS: 13",
+    "db > ",
+  };
+
+  expect_statements_result(statements, expected);
+}
+
+TEST_F(DbTest, PrintsStructureOfOneNodeBTree) {
+  std::vector<std::string> statements {
+    "insert 3 user3 person3@example.com\n",
+    "insert 1 user1 person1@example.com\n",
+    "insert 2 user2 person2@example.com\n",
+    ".btree\n",
+    ".exit\n",
+  };
+
+  std::vector<std::string> expected {
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > Tree: ",
+    "leaf (size: 3)",
+    "  - 0 : 3",
+    "  - 1 : 1",
+    "  - 2 : 2",
+    "db > ",
+  };
+
+  expect_statements_result(statements, expected);
+}
+
 } /* namespace simpledb */

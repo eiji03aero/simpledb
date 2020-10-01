@@ -18,12 +18,13 @@ public:
   void open(const char* filename);
   Page* get_page(uint32_t page_num);
   void delete_page(uint32_t page_num);
-  void flush(uint32_t page_num, uint32_t bytes_to_flush);
+  void flush(uint32_t page_num);
 
   static const uint32_t MaxPages { 100 };
 
   int file_descriptor;
   uint32_t file_length;
+  uint32_t num_pages;
   Page *pages[MaxPages];
 };
 

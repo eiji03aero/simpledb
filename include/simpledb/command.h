@@ -5,6 +5,7 @@
 #include "simpledb/table.h"
 
 #include <string>
+#include <iostream>
 
 namespace simpledb {
 

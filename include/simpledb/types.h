@@ -27,6 +27,11 @@ enum class ExecuteResult {
   UnknownStatement
 };
 
+enum class NodeType {
+  Internal,
+  Leaf,
+};
+
 } /* namespace simpledb */
 
 #endif /* ifndef TYPE_H_INCLUDED */
