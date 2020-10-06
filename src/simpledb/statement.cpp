@@ -63,16 +63,13 @@ ExecuteResult Statement::execute(Table *table) {
 ExecuteResult Statement::execute_insert(Table *table) {
   Page *page = table->pager->get_page(table->root_page_num);
   Node node(page->content);
-  uint32_t num_cells = *(node.num_cells());
-  if (num_cells >= LEAF_NODE_MAX_CELLS) {
-    return ExecuteResult::TableFull;
-  }
+  uint32_t num_cells = *(node.leaf_num_cells());
 
   uint32_t key_to_insert = row_to_insert.id;
   Cursor *cursor = table->find(key_to_insert);
 
   if (cursor->cell_num < num_cells) {
-    uint32_t key_at_index = *(node.key(cursor->cell_num));
+    uint32_t key_at_index = *(node.leaf_key(cursor->cell_num));
     if (key_at_index == key_to_insert) {
       return ExecuteResult::DuplicateKey;
     }

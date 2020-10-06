@@ -82,4 +82,8 @@ void Pager::flush(uint32_t page_num) {
   }
 }
 
+uint32_t Pager::get_unused_page_num() {
+  return num_pages;
+}
+
 } /* namespace simpledb */

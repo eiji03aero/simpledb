@@ -19,6 +19,7 @@ public:
   Page* get_page(uint32_t page_num);
   void delete_page(uint32_t page_num);
   void flush(uint32_t page_num);
+  uint32_t get_unused_page_num();
 
   static const uint32_t MaxPages { 100 };
 

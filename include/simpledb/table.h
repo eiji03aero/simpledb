@@ -26,6 +26,7 @@ public:
   char* cursor_value(Cursor *cursor);
   Cursor* find(uint32_t key_to_insert);
   Cursor* find_leaf_node(uint32_t page_num, uint32_t key_to_insert);
+  void create_new_root(uint32_t right_child_page_num);
 
   uint32_t root_page_num;
   Pager *pager;
@@ -38,7 +39,8 @@ public:
 
   void table_start();
   void advance();
-  void insert_leaf_node(uint32_t key, Row *value);
+  void insert_leaf_node(uint32_t key, Row *row);
+  void split_and_insert_leaf_node(uint32_t key, Row *row);
 
   Table *table;
   uint32_t page_num;

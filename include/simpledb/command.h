@@ -3,6 +3,7 @@
 
 #include "simpledb/types.h"
 #include "simpledb/table.h"
+#include "simpledb/node.h"
 
 #include <string>
 #include <iostream>

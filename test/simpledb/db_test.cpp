@@ -236,10 +236,10 @@ TEST_F(DbTest, PrintsStructureOfOneNodeBTree) {
     "db > executed",
     "db > executed",
     "db > Tree: ",
-    "leaf (size: 3)",
-    "  - 0 : 1",
-    "  - 1 : 2",
-    "  - 2 : 3",
+    "- leaf (size 3)",
+    "  - 1",
+    "  - 2",
+    "  - 3",
     "db > ",
   };
 
@@ -260,6 +260,57 @@ TEST_F(DbTest, PrintsErrorDuplicateId) {
     "db > 1 user1 person1@example.comyade",
     "executed",
     "db > ",
+  };
+
+  expect_statements_result(statements, expected);
+}
+
+TEST_F(DbTest, PrintsStructureOf3LeafNode) {
+  std::vector<std::string> statements;
+  for (uint32_t i = 1; i < 15; i++) {
+    std::stringstream ss;
+    ss << "insert " << i << " user" << i << " person" << i << "@example.com" << '\n';
+    statements.push_back(ss.str());
+  }
+  statements.push_back(".btree\n");
+  statements.push_back("insert 15 user15 person15@example.com\n");
+  statements.push_back(".exit\n");
+
+  std::vector<std::string> expected {
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > Tree: ",
+    "- internal (size 1)",
+    "  - leaf (size 7)",
+    "    - 1",
+    "    - 2",
+    "    - 3",
+    "    - 4",
+    "    - 5",
+    "    - 6",
+    "    - 7",
+    "  - key 7",
+    "  - leaf (size 7)",
+    "    - 8",
+    "    - 9",
+    "    - 10",
+    "    - 11",
+    "    - 12",
+    "    - 13",
+    "    - 14",
+    "db > Error: need to implement searching an internal node",
   };
 
   expect_statements_result(statements, expected);
