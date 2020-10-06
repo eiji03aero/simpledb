@@ -96,7 +96,7 @@ TEST_F(DbTest, InputOutputCorrect) {
 };
 
 TEST_F(DbTest, EmitsTableFullError) {
-  int num_rows { 1301 };
+  int num_rows { 1401 };
   std::vector<std::string> statements;
   std::stringstream statement_stream;
   for (int i {1}; i < num_rows + 1; i++) {
@@ -107,8 +107,8 @@ TEST_F(DbTest, EmitsTableFullError) {
 
   std::vector<std::string> result = exec_statements(statements);
 
-  EXPECT_EQ(result.at(result.size() - 2), "db > Error: table full");
-  EXPECT_EQ(result.at(result.size() - 3), "db > executed");
+  EXPECT_EQ(result.at(result.size() - 2), "db > executed");
+  EXPECT_EQ(result.at(result.size() - 1), "db > Error: need to implement updating parent after split");
 };
 
 TEST_F(DbTest, InsertsRowWithMaximumLength) {
@@ -310,7 +310,8 @@ TEST_F(DbTest, PrintsStructureOf3LeafNode) {
     "    - 12",
     "    - 13",
     "    - 14",
-    "db > Error: need to implement searching an internal node",
+    "db > executed",
+    "db > "
   };
 
   expect_statements_result(statements, expected);

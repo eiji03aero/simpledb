@@ -56,8 +56,7 @@ Cursor* Table::find(uint32_t key) {
   if (node.get_type() == NodeType::Leaf) {
     return find_leaf_node(root_page_num, key);
   } else {
-    std::cout << "Error: need to implement searching an internal node" << '\n';
-    exit(EXIT_FAILURE);
+    return find_internal_node(root_page_num, key);
   }
 }
 
@@ -87,6 +86,38 @@ Cursor* Table::find_leaf_node(uint32_t page_num, uint32_t key) {
 
   cursor->cell_num = min_index;
   return cursor;
+}
+
+Cursor* Table::find_internal_node(uint32_t page_num, uint32_t key) {
+  Page *page = pager->get_page(page_num);
+  Node node(page->content);
+  uint32_t num_keys = *(node.internal_num_keys());
+
+  uint32_t min_index = 0;
+  uint32_t max_index = num_keys;
+
+  while (min_index != max_index) {
+    uint32_t index = (min_index + max_index) / 2;
+    uint32_t key_to_right = *(node.internal_key(index));
+    if (key_to_right >= key) {
+      max_index = index;
+    } else {
+      min_index = index + 1;
+    }
+  }
+
+  uint32_t child_num = *(node.internal_child(min_index));
+  Page *child_page = pager->get_page(child_num);
+  Node child_node(child_page->content);
+  switch (child_node.get_type()) {
+    case NodeType::Leaf:
+      return find_leaf_node(child_num, key);
+    case NodeType::Internal:
+      return find_internal_node(child_num, key);
+    default:
+      std::cout << "Error: unknown node type " << static_cast<uint32_t>(child_node.get_type()) << '\n';
+      exit(EXIT_FAILURE);
+  }
 }
 
 void Table::create_new_root(uint32_t right_child_page_num) {
