@@ -46,6 +46,7 @@ extern const uint32_t INTERNAL_NODE_KEY_SIZE = sizeof(uint32_t);
 extern const uint32_t INTERNAL_NODE_CHILD_SIZE = sizeof(uint32_t);
 extern const uint32_t INTERNAL_NODE_CELL_SIZE =
   INTERNAL_NODE_KEY_SIZE + INTERNAL_NODE_CHILD_SIZE;
+extern const uint32_t INTERNAL_NODE_MAX_CELLS = 3;
 
 Node::Node(char *node)
   : node { node } {};
@@ -95,6 +96,10 @@ uint32_t Node::get_max_key() {
   }
 }
 
+uint32_t* Node::parent() {
+  return reinterpret_cast<uint32_t*>(node + PARENT_POINTER_OFFSET);
+}
+
 uint32_t* Node::leaf_num_cells() {
   return reinterpret_cast<uint32_t*>(node + LEAF_NODE_NUM_CELLS_OFFSET);
 }
@@ -141,6 +146,30 @@ uint32_t* Node::internal_child(uint32_t child_num) {
 
 uint32_t* Node::internal_key(uint32_t key_num) {
   return internal_cell(key_num) + INTERNAL_NODE_CHILD_SIZE;
+}
+
+void Node::internal_update_key (uint32_t old_key, uint32_t new_key) {
+  uint32_t old_child_max = internal_find_child(old_key);
+  *(internal_key(old_child_max)) = new_key;
+}
+
+uint32_t Node::internal_find_child(uint32_t key) {
+  uint32_t num_keys = *(internal_num_keys());
+
+  uint32_t min_index = 0;
+  uint32_t max_index = num_keys;
+
+  while (min_index != max_index) {
+    uint32_t index = (min_index + max_index) / 2;
+    uint32_t key_to_right = *(internal_key(index));
+    if (key_to_right >= key) {
+      max_index = index;
+    } else {
+      min_index = index + 1;
+    }
+  }
+
+  return min_index;
 }
 
 } /* namespace simpledb */

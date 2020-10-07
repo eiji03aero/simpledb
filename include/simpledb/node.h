@@ -48,6 +48,7 @@ extern const uint32_t INTERNAL_NODE_HEADER_SIZE;
 extern const uint32_t INTERNAL_NODE_KEY_SIZE;
 extern const uint32_t INTERNAL_NODE_CHILD_SIZE;
 extern const uint32_t INTERNAL_NODE_CELL_SIZE;
+extern const uint32_t INTERNAL_NODE_MAX_CELLS;
 
 class Node {
 public:
@@ -60,6 +61,7 @@ public:
   bool get_is_root();
   void set_is_root(bool is_root);
   uint32_t get_max_key();
+  uint32_t* parent();
 
   uint32_t* leaf_num_cells();
   uint32_t* leaf_next_leaf();
@@ -72,6 +74,8 @@ public:
   uint32_t* internal_cell(uint32_t child_num);
   uint32_t* internal_child(uint32_t num);
   uint32_t* internal_key(uint32_t key);
+  void internal_update_key(uint32_t old_max, uint32_t new_max);
+  uint32_t internal_find_child(uint32_t key);
 
   char* node;
 };

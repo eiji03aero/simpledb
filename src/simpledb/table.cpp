@@ -91,22 +91,10 @@ Cursor* Table::find_leaf_node(uint32_t page_num, uint32_t key) {
 Cursor* Table::find_internal_node(uint32_t page_num, uint32_t key) {
   Page *page = pager->get_page(page_num);
   Node node(page->content);
-  uint32_t num_keys = *(node.internal_num_keys());
 
-  uint32_t min_index = 0;
-  uint32_t max_index = num_keys;
+  uint32_t child_index = node.internal_find_child(key);
+  uint32_t child_num = *(node.internal_child(child_index));
 
-  while (min_index != max_index) {
-    uint32_t index = (min_index + max_index) / 2;
-    uint32_t key_to_right = *(node.internal_key(index));
-    if (key_to_right >= key) {
-      max_index = index;
-    } else {
-      min_index = index + 1;
-    }
-  }
-
-  uint32_t child_num = *(node.internal_child(min_index));
   Page *child_page = pager->get_page(child_num);
   Node child_node(child_page->content);
   switch (child_node.get_type()) {
@@ -141,6 +129,8 @@ void Table::create_new_root(uint32_t right_child_page_num) {
   uint32_t left_child_max_key = left_child.get_max_key();
   *(root_node.internal_key(0)) = left_child_max_key;
   *(root_node.internal_right_child()) = right_child_page_num;
+  *(left_child.parent()) = root_page_num;
+  *(right_child.parent()) = root_page_num;
 }
 
 void Cursor::table_start() {
@@ -191,12 +181,15 @@ void Cursor::insert_leaf_node(uint32_t key, Row *row) {
 void Cursor::split_and_insert_leaf_node(uint32_t key, Row *row) {
   Page *old_page = table->pager->get_page(page_num);
   Node old_node(old_page->content);
+  uint32_t old_max = old_node.get_max_key();
 
   uint32_t new_page_num = table->pager->get_unused_page_num();
   Page *new_page = table->pager->get_page(new_page_num);
   Node new_node(new_page->content);
   new_node.initialize_leaf_node();
 
+
+  *(new_node.parent()) = *(old_node.parent());
   *(new_node.leaf_next_leaf()) = *(old_node.leaf_next_leaf());
   *(old_node.leaf_next_leaf()) = new_page_num;
 
@@ -227,9 +220,51 @@ void Cursor::split_and_insert_leaf_node(uint32_t key, Row *row) {
   if (old_node.get_is_root()) {
     return table->create_new_root(new_page_num);
   } else {
-    std::cout << "Error: need to implement updating parent after split" << '\n';
-    exit(EXIT_FAILURE);
+    uint32_t parent_page_num = *(old_node.parent());
+    uint32_t new_max = old_node.get_max_key();
+    Page *parent_page = table->pager->get_page(parent_page_num);
+    Node parent_node(parent_page->content);
+
+    parent_node.internal_update_key(old_max, new_max);
+    insert_internal_node(parent_page_num, new_page_num);
   }
 }
+
+void Cursor::insert_internal_node(uint32_t parent_page_num, uint32_t child_page_num) {
+  Page *parent_page = table->pager->get_page(parent_page_num);
+  Node parent_node(parent_page->content);
+  Page *child_page = table->pager->get_page(child_page_num);
+  Node child_node(child_page->content);
+
+  uint32_t child_max_key = child_node.get_max_key();
+  uint32_t index = parent_node.internal_find_child(child_max_key);
+
+  uint32_t original_num_keys = *(parent_node.internal_num_keys());
+  *(parent_node.internal_num_keys()) = original_num_keys + 1;
+
+  if (original_num_keys >= INTERNAL_NODE_MAX_CELLS) {
+    std::cout << "Error: need to implement splitting internal node" << '\n';
+    exit(EXIT_FAILURE);
+  }
+
+  uint32_t right_child_page_num = *(parent_node.internal_right_child());
+  Page *right_page = table->pager->get_page(right_child_page_num);
+  Node right_child(right_page->content);
+
+  if (child_max_key > right_child.get_max_key()) {
+    *(parent_node.internal_child(original_num_keys)) = right_child_page_num;
+    *(parent_node.internal_key(original_num_keys)) = right_child.get_max_key();
+    *(parent_node.internal_right_child()) = child_page_num;
+  } else {
+    for (uint32_t i = original_num_keys; i > index; i--) {
+      char *destination = reinterpret_cast<char*>(parent_node.internal_cell(i));
+      char *source = reinterpret_cast<char*>(parent_node.internal_cell(i - 1));
+      memcpy(destination, source, INTERNAL_NODE_CELL_SIZE);
+    }
+    *(parent_node.internal_child(index)) = child_page_num;
+    *(parent_node.internal_key(index)) = child_max_key;
+  }
+}
+
 
 } /* namespace simpledb */

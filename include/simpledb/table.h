@@ -42,6 +42,7 @@ public:
   void advance();
   void insert_leaf_node(uint32_t key, Row *row);
   void split_and_insert_leaf_node(uint32_t key, Row *row);
+  void insert_internal_node(uint32_t parent_page_num, uint32_t new_page_num);
 
   Table *table;
   uint32_t page_num;
