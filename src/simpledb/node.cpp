@@ -16,7 +16,9 @@ extern const uint32_t COMMON_NODE_HEADER_SIZE { NODE_TYPE_SIZE + IS_ROOT_SIZE + 
 // leaf node header layout
 extern const uint32_t LEAF_NODE_NUM_CELLS_SIZE { sizeof(uint32_t) };
 extern const uint32_t LEAF_NODE_NUM_CELLS_OFFSET { COMMON_NODE_HEADER_SIZE };
-extern const uint32_t LEAF_NODE_HEADER_SIZE { COMMON_NODE_HEADER_SIZE + LEAF_NODE_NUM_CELLS_SIZE };
+extern const uint32_t LEAF_NODE_NEXT_LEAF_SIZE { sizeof(uint32_t) };
+extern const uint32_t LEAF_NODE_NEXT_LEAF_OFFSET { LEAF_NODE_NUM_CELLS_OFFSET + LEAF_NODE_NUM_CELLS_SIZE };
+extern const uint32_t LEAF_NODE_HEADER_SIZE { COMMON_NODE_HEADER_SIZE + LEAF_NODE_NUM_CELLS_SIZE + LEAF_NODE_NEXT_LEAF_SIZE };
 
 // leaf node body layout
 extern const uint32_t LEAF_NODE_KEY_SIZE { sizeof(uint32_t) };
@@ -52,6 +54,7 @@ void Node::initialize_leaf_node() {
   set_type(NodeType::Leaf);
   set_is_root(false);
   *(leaf_num_cells()) = 0;
+  *(leaf_next_leaf()) = 0; // represents no sibling
 }
 
 void Node::initialize_internal_node() {
@@ -94,6 +97,10 @@ uint32_t Node::get_max_key() {
 
 uint32_t* Node::leaf_num_cells() {
   return reinterpret_cast<uint32_t*>(node + LEAF_NODE_NUM_CELLS_OFFSET);
+}
+
+uint32_t* Node::leaf_next_leaf() {
+  return reinterpret_cast<uint32_t*>(node + LEAF_NODE_NEXT_LEAF_OFFSET);
 }
 
 char* Node::leaf_cell(uint32_t cell_num) {

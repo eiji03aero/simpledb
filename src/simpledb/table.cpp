@@ -144,12 +144,10 @@ void Table::create_new_root(uint32_t right_child_page_num) {
 }
 
 void Cursor::table_start() {
-  page_num = table->root_page_num;
-  cell_num = 0;
+  Page *page = table->pager->get_page(page_num);
+  Node node(page->content);
 
-  Page *root_page = table->pager->get_page(table->root_page_num);
-  Node root_node(root_page->content);
-  uint32_t num_cells = *(root_node.leaf_num_cells());
+  uint32_t num_cells = *(node.leaf_num_cells());
   end_of_table = (num_cells == 0);
 }
 
@@ -159,7 +157,13 @@ void Cursor::advance() {
 
   cell_num += 1;
   if (cell_num >= *(node.leaf_num_cells())) {
-    end_of_table = true;
+    uint32_t next_page_num = *(node.leaf_next_leaf());
+    if (next_page_num == 0) {
+      end_of_table = true;
+    } else {
+      page_num = next_page_num;
+      cell_num = 0;
+    }
   }
 }
 
@@ -193,6 +197,9 @@ void Cursor::split_and_insert_leaf_node(uint32_t key, Row *row) {
   Node new_node(new_page->content);
   new_node.initialize_leaf_node();
 
+  *(new_node.leaf_next_leaf()) = *(old_node.leaf_next_leaf());
+  *(old_node.leaf_next_leaf()) = new_page_num;
+
   for (int32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) {
     char *destination_node_addr;
     if (i >= LEAF_NODE_LEFT_SPLIT_COUNT) {
@@ -205,7 +212,8 @@ void Cursor::split_and_insert_leaf_node(uint32_t key, Row *row) {
     char *destination = destination_node.leaf_cell(index_within_node);
 
     if (i == cell_num) {
-      row->serialize(destination);
+      row->serialize(destination_node.leaf_value(index_within_node));
+      *(destination_node.leaf_key(index_within_node)) = key;
     } else if (i > cell_num) {
       memcpy(destination, old_node.leaf_cell(i - 1), LEAF_NODE_CELL_SIZE);
     } else {

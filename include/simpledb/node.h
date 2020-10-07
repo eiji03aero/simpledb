@@ -21,6 +21,8 @@ extern const uint32_t COMMON_NODE_HEADER_SIZE;
 // leaf node header layout
 extern const uint32_t LEAF_NODE_NUM_CELLS_SIZE;
 extern const uint32_t LEAF_NODE_NUM_CELLS_OFFSET;
+extern const uint32_t LEAF_NODE_NEXT_LEAF_SIZE;
+extern const uint32_t LEAF_NODE_NEXT_LEAF_OFFSET;
 extern const uint32_t LEAF_NODE_HEADER_SIZE;
 
 // leaf node body layout
@@ -60,6 +62,7 @@ public:
   uint32_t get_max_key();
 
   uint32_t* leaf_num_cells();
+  uint32_t* leaf_next_leaf();
   char* leaf_cell(uint32_t cell_num);
   uint32_t* leaf_key(uint32_t cell_num);
   char* leaf_value(uint32_t cell_num);

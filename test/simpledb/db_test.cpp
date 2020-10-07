@@ -212,9 +212,9 @@ TEST_F(DbTest, PrintsConstants) {
     "db > Constants: ",
     "ROW_SIZE: 293",
     "COMMON_NODE_HEADER_SIZE: 6",
-    "LEAF_NODE_HEADER_SIZE: 10",
+    "LEAF_NODE_HEADER_SIZE: 14",
     "LEAF_NODE_CELL_SIZE: 297",
-    "LEAF_NODE_SPACE_FOR_CELLS: 4086",
+    "LEAF_NODE_SPACE_FOR_CELLS: 4082",
     "LEAF_NODE_MAX_CELLS: 13",
     "db > ",
   };
@@ -311,6 +311,54 @@ TEST_F(DbTest, PrintsStructureOf3LeafNode) {
     "    - 13",
     "    - 14",
     "db > executed",
+    "db > "
+  };
+
+  expect_statements_result(statements, expected);
+}
+
+TEST_F(DbTest, PrintsAllRowsInMultiLevelTree) {
+  std::vector<std::string> statements;
+  for (uint32_t i = 1; i < 16; i++) {
+    std::stringstream ss;
+    ss << "insert " << i << " user" << i << " person" << i << "@example.com" << '\n';
+    statements.push_back(ss.str());
+  }
+  statements.push_back("select\n");
+  statements.push_back(".exit\n");
+
+  std::vector<std::string> expected {
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > executed",
+    "db > 1 user1 person1@example.com",
+    "2 user2 person2@example.com",
+    "3 user3 person3@example.com",
+    "4 user4 person4@example.com",
+    "5 user5 person5@example.com",
+    "6 user6 person6@example.com",
+    "7 user7 person7@example.com",
+    "8 user8 person8@example.com",
+    "9 user9 person9@example.com",
+    "10 user10 person10@example.com",
+    "11 user11 person11@example.com",
+    "12 user12 person12@example.com",
+    "13 user13 person13@example.com",
+    "14 user14 person14@example.com",
+    "15 user15 person15@example.com",
+    "executed",
     "db > "
   };
 

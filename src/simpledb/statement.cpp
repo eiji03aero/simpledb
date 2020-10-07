@@ -85,14 +85,14 @@ void print_row(Row *row) {
 }
 
 ExecuteResult Statement::execute_select(Table *table) {
-  Cursor cursor(table);
-  cursor.table_start();
+  Cursor *cursor = table->find(0);
+  cursor->table_start();
 
   Row row;
-  while (!(cursor.end_of_table)) {
-    row.deserialize(table->cursor_value(&cursor));
+  while (!(cursor->end_of_table)) {
+    row.deserialize(table->cursor_value(cursor));
     print_row(&row);
-    cursor.advance();
+    cursor->advance();
   }
 
   return ExecuteResult::Success;
